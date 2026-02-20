@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createEmitter } from '../src/index';
 
 type TestEvents = {
@@ -27,6 +27,33 @@ describe('createEmitter', () => {
     emitter.emit('ping', 1);
 
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('on returns an unsubscribe function', () => {
+    const emitter = createEmitter<TestEvents>();
+    const handler = vi.fn<(payload: number) => void>();
+
+    const unsubscribe = emitter.on('ping', handler);
+    expect(typeof unsubscribe).toBe('function');
+
+    emitter.emit('ping', 1);
+    unsubscribe();
+    emitter.emit('ping', 2);
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledWith(1);
+  });
+
+  it('once calls handler only once', () => {
+    const emitter = createEmitter<TestEvents>();
+    const handler = vi.fn<(payload: number) => void>();
+
+    emitter.once('ping', handler);
+    emitter.emit('ping', 1);
+    emitter.emit('ping', 2);
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledWith(1);
   });
 
   it('removing during emit does not break iteration', () => {
