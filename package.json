@@ -1,6 +1,6 @@
 {
   "name": "@startling/emitter",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A tiny, fully-typed event emitter for modern TypeScript and JavaScript projects — with wildcard support, Promise-based `waitFor`, and AbortSignal integration.",
   "author": "Nicholas Hutchind",
   "license": "MIT",
