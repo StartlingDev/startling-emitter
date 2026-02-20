@@ -1,6 +1,6 @@
 {
   "name": "@startling/emitter",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A tiny event emitter for TypeScript and JavaScript projects.",
   "homepage": "https://github.com/StartlingDev/startling-emitter#readme",
   "repository": {
