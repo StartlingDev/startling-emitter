@@ -6,7 +6,7 @@
   <a href="https://github.com/StartlingDev/startling-emitter/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@startling/emitter"></a>
 </p>
 
-# startling-emitter
+# @startling/emitter
 
 A tiny, fully-typed event emitter with exact keys, namespace wildcards, and Promise-based event waiting.
 
@@ -24,7 +24,7 @@ npm install @startling/emitter
 
 ---
 
-## Why startling-emitter?
+## Why @startling/emitter?
 
 - Strongly typed event maps
 - Exact-key subscriptions
