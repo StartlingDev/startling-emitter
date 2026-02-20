@@ -32,6 +32,18 @@ export function createEmitter<Events extends EventMap>(): Emitter<Events> {
     remove(event, handler as Handler<any>);
   };
 
+  const listenerCount = <K extends keyof Events>(event: K): number => {
+    return handlers.get(event)?.size ?? 0;
+  };
+
+  const eventNames = (): Array<keyof Events> => {
+    return Array.from(handlers.keys());
+  };
+
+  const clear = (): void => {
+    handlers.clear();
+  };
+
   const emit = <K extends keyof Events>(...args: EmitArgs<Events, K>): void => {
     const [event, payload] = args as [K, Events[K]];
     const set = handlers.get(event);
@@ -107,6 +119,9 @@ export function createEmitter<Events extends EventMap>(): Emitter<Events> {
   return {
     on,
     off,
+    listenerCount,
+    eventNames,
+    clear,
     emit,
     once,
     waitFor

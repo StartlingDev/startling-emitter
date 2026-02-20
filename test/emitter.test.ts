@@ -137,4 +137,61 @@ describe('createEmitter', () => {
 
     await expect(pending).resolves.toBeUndefined();
   });
+
+  it('listenerCount returns number of handlers for an event', () => {
+    const emitter = createEmitter<TestEvents>();
+    const a = vi.fn<(payload: number) => void>();
+    const b = vi.fn<(payload: number) => void>();
+
+    expect(emitter.listenerCount('ping')).toBe(0);
+
+    const unsubscribeA = emitter.on('ping', a);
+    emitter.on('ping', b);
+    expect(emitter.listenerCount('ping')).toBe(2);
+
+    unsubscribeA();
+    expect(emitter.listenerCount('ping')).toBe(1);
+
+    emitter.off('ping', b);
+    expect(emitter.listenerCount('ping')).toBe(0);
+  });
+
+  it('eventNames returns registered events', () => {
+    const emitter = createEmitter<TestEvents>();
+    const pingHandler = vi.fn<(payload: number) => void>();
+    const doneHandler = vi.fn<() => void>();
+
+    expect(emitter.eventNames()).toEqual([]);
+
+    emitter.on('ping', pingHandler);
+    emitter.on('done', doneHandler);
+
+    expect(emitter.eventNames()).toEqual(['ping', 'done']);
+
+    emitter.off('ping', pingHandler);
+    expect(emitter.eventNames()).toEqual(['done']);
+  });
+
+  it('clear removes all events and handlers', () => {
+    const emitter = createEmitter<TestEvents>();
+    const pingHandler = vi.fn<(payload: number) => void>();
+    const doneHandler = vi.fn<() => void>();
+
+    emitter.on('ping', pingHandler);
+    emitter.on('done', doneHandler);
+    expect(emitter.listenerCount('ping')).toBe(1);
+    expect(emitter.listenerCount('done')).toBe(1);
+    expect(emitter.eventNames()).toEqual(['ping', 'done']);
+
+    emitter.clear();
+
+    expect(emitter.listenerCount('ping')).toBe(0);
+    expect(emitter.listenerCount('done')).toBe(0);
+    expect(emitter.eventNames()).toEqual([]);
+
+    emitter.emit('ping', 123);
+    emitter.emit('done');
+    expect(pingHandler).not.toHaveBeenCalled();
+    expect(doneHandler).not.toHaveBeenCalled();
+  });
 });

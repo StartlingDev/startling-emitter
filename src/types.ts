@@ -11,6 +11,9 @@ export interface Emitter<Events extends EventMap> {
     handler: Handler<Events[K]>
   ): () => void;
   off<K extends keyof Events>(event: K, handler: Handler<Events[K]>): void;
+  listenerCount<K extends keyof Events>(event: K): number;
+  eventNames(): Array<keyof Events>;
+  clear(): void;
   emit<K extends keyof Events>(...args: EmitArgs<Events, K>): void;
   once<K extends keyof Events>(event: K, handler: Handler<Events[K]>): void;
   waitFor<K extends keyof Events>(
