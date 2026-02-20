@@ -4,6 +4,9 @@ import { createEmitter } from '../src/index';
 type TestEvents = {
   ping: number;
   done: void;
+  'user.created': { id: string };
+  'user.deleted': { id: string };
+  'user:login': { id: string };
 };
 
 describe('createEmitter', () => {
@@ -193,5 +196,69 @@ describe('createEmitter', () => {
     emitter.emit('done');
     expect(pingHandler).not.toHaveBeenCalled();
     expect(doneHandler).not.toHaveBeenCalled();
+  });
+
+  it('global wildcard receives event name and payload', () => {
+    const emitter = createEmitter<TestEvents>();
+    const wildcard = vi.fn<
+      (event: keyof TestEvents, payload?: TestEvents[keyof TestEvents]) => void
+    >();
+
+    emitter.on('*', wildcard);
+    emitter.emit('ping', 42);
+    emitter.emit('done');
+
+    expect(wildcard).toHaveBeenCalledTimes(2);
+    expect(wildcard).toHaveBeenNthCalledWith(1, 'ping', 42);
+    expect(wildcard).toHaveBeenNthCalledWith(2, 'done');
+  });
+
+  it('namespace dot wildcard only matches dot-prefixed events', () => {
+    const emitter = createEmitter<TestEvents>();
+    const ns = vi.fn<(payload: { id: string }) => void>();
+
+    emitter.on('user.*', ns);
+    emitter.emit('user.created', { id: 'a' });
+    emitter.emit('user.deleted', { id: 'b' });
+    emitter.emit('user:login', { id: 'c' });
+
+    expect(ns).toHaveBeenCalledTimes(2);
+    expect(ns).toHaveBeenNthCalledWith(1, { id: 'a' });
+    expect(ns).toHaveBeenNthCalledWith(2, { id: 'b' });
+  });
+
+  it('namespace colon wildcard only matches colon-prefixed events', () => {
+    const emitter = createEmitter<TestEvents>();
+    const ns = vi.fn<(payload: { id: string }) => void>();
+
+    emitter.on('user:*', ns);
+    emitter.emit('user:login', { id: 'x' });
+    emitter.emit('user.created', { id: 'y' });
+
+    expect(ns).toHaveBeenCalledTimes(1);
+    expect(ns).toHaveBeenCalledWith({ id: 'x' });
+  });
+
+  it('off and once work for wildcard handlers', () => {
+    const emitter = createEmitter<TestEvents>();
+    const star = vi.fn<
+      (event: keyof TestEvents, payload?: TestEvents[keyof TestEvents]) => void
+    >();
+    const onceStar = vi.fn<
+      (event: keyof TestEvents, payload?: TestEvents[keyof TestEvents]) => void
+    >();
+
+    emitter.on('*', star);
+    expect(emitter.listenerCount('*')).toBe(1);
+    emitter.off('*', star);
+    expect(emitter.listenerCount('*')).toBe(0);
+
+    emitter.emit('ping', 1);
+    expect(star).not.toHaveBeenCalled();
+
+    emitter.once('*', onceStar);
+    emitter.emit('ping', 2);
+    emitter.emit('done');
+    expect(onceStar).toHaveBeenCalledTimes(1);
   });
 });

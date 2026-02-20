@@ -49,13 +49,46 @@ The package ships type declarations, so JavaScript users can still get IntelliSe
 ## API
 
 - `on(event, handler): () => void`
+  - Registers an event handler. 
 - `off(event, handler): void`
+  - Unregisters an event handler. 
 - `once(event, handler): void`
-- `emit(event, payload?): void` (`void` events emit with no payload)
+  - Registers an event handler that unregisters itself after being called once.
+- `on('*', (event, payload?) => {})`
+  - Registers a global wildcard matching all registered events.
+- `on('namespace.*', (payload) => {})`
+  - Registers a namespace wildcard using a dot (example: `user.*` -> `user.created`)
+- `on('namespace:*', (payload) => {})`
+  - Registers a namespace wildcard using a colon (example: `user:*` -> `user:created`)
+- `emit(event, payload?): void`
+  - Emit an event with an payload. (`void` events emit with no payload)
 - `waitFor(event, options?): Promise<payload>`
+  - Waits for an event to be fired. Includes optional timeout, filters, and abort signal.
 - `listenerCount(event): number`
+  - Gets the number of listeners for a specified event.
 - `eventNames(): Array<event>`
+  - Gets the list of events being listened for. Does _not_ include wildcard patterns.
 - `clear(): void`
+  - Unregisters all event handlers.
+
+## Wildcard examples
+
+```ts
+emitter.on('*', (event, payload) => {
+  console.log('any event:', event, payload);
+});
+
+emitter.on('user.*', (payload) => {
+  console.log('dot namespace payload:', payload);
+});
+
+emitter.on('user:*', (payload) => {
+  console.log('colon namespace payload:', payload);
+});
+
+emitter.emit('user.created', { id: '1' }); // matches "*" and "user.*"
+emitter.emit('user:login', { id: '1' });   // matches "*" and "user:*"
+```
 
 ## waitFor examples
 
