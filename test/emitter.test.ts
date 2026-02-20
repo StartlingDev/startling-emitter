@@ -3,6 +3,7 @@ import { createEmitter } from '../src/index';
 
 type TestEvents = {
   ping: number;
+  done: void;
 };
 
 describe('createEmitter', () => {
@@ -82,5 +83,58 @@ describe('createEmitter', () => {
     // Second emit should only call 'a' since 'b' was removed
     emitter.emit('ping', 2);
     expect(calls).toEqual(['a']);
+  });
+
+  it('waitFor resolves with the next payload', async () => {
+    const emitter = createEmitter<TestEvents>();
+    const pending = emitter.waitFor('ping');
+
+    emitter.emit('ping', 7);
+
+    await expect(pending).resolves.toBe(7);
+  });
+
+  it('waitFor applies filter until payload matches', async () => {
+    const emitter = createEmitter<TestEvents>();
+    const pending = emitter.waitFor('ping', { filter: (payload) => payload > 10 });
+
+    emitter.emit('ping', 5);
+    emitter.emit('ping', 11);
+
+    await expect(pending).resolves.toBe(11);
+  });
+
+  it('waitFor rejects on timeout', async () => {
+    vi.useFakeTimers();
+    try {
+      const emitter = createEmitter<TestEvents>();
+      const pending = emitter.waitFor('ping', { timeoutMs: 50 });
+      const assertion = expect(pending).rejects.toThrow('Timed out');
+
+      await vi.advanceTimersByTimeAsync(50);
+      await assertion;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('waitFor rejects on abort', async () => {
+    const emitter = createEmitter<TestEvents>();
+    const controller = new AbortController();
+    const pending = emitter.waitFor('ping', { signal: controller.signal });
+    const assertion = expect(pending).rejects.toThrow('Aborted');
+
+    controller.abort();
+
+    await assertion;
+  });
+
+  it('waitFor supports void payload events', async () => {
+    const emitter = createEmitter<TestEvents>();
+    const pending = emitter.waitFor('done');
+
+    emitter.emit('done');
+
+    await expect(pending).resolves.toBeUndefined();
   });
 });

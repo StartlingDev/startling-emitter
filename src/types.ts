@@ -13,4 +13,12 @@ export interface Emitter<Events extends EventMap> {
   off<K extends keyof Events>(event: K, handler: Handler<Events[K]>): void;
   emit<K extends keyof Events>(...args: EmitArgs<Events, K>): void;
   once<K extends keyof Events>(event: K, handler: Handler<Events[K]>): void;
+  waitFor<K extends keyof Events>(
+    event: K,
+    options?: {
+      signal?: AbortSignal;
+      timeoutMs?: number;
+      filter?: (payload: Events[K]) => boolean;
+    }
+  ): Promise<Events[K]>;
 }
