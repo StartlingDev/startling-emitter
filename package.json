@@ -35,10 +35,11 @@
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "release": "npm run check:clean && npm publish",
-    "release:patch": "npm version patch && git push --follow-tags && npm run release",
-    "release:minor": "npm version minor && git push --follow-tags && npm run release",
-    "release:major": "npm version major && git push --follow-tags && npm run release"
+    "check:clean": "git diff --quiet && git diff --cached --quiet && npm run test && npm run typecheck",
+    "release": "npm publish",
+    "release:patch": "npm run check:clean && npm version patch && git push --follow-tags && npm run release",
+    "release:minor": "npm run check:clean && npm version minor && git push --follow-tags && npm run release",
+    "release:major": "npm run check:clean && npm version major && git push --follow-tags && npm run release"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",
