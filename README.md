@@ -1,3 +1,11 @@
+<p align="center">
+  <img src="./assets/logo.png" alt="startling-emitter logo" width="600" />
+  <br>
+  <a href="https://www.npmjs.org/package/@startling/emitter"><img src="https://img.shields.io/npm/v/@startling/emitter" alt="npm"></a>
+  <a href="https://unpkg.com/@startling/emitter/dist/startling-emitter.js"><img src="https://img.badgesize.io/https://unpkg.com/@startling/emitter/dist/startling-emitter.js?compression=gzip" alt="gzip size"></a>
+  <a href="https://github.com/StartlingDev/startling-emitter/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@startling/emitter"></a>
+</p>
+
 # startling-emitter
 
 A tiny, fully-typed event emitter with exact keys, namespace wildcards, and Promise-based event waiting.
